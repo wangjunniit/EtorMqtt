@@ -1,3 +1,4 @@
 mqttport: 1883 #mqtt服务端tcp端口号
+bindIp: 0.0.0.0 #mqtt服务端绑定的ip
 eventLoopPoolSize: 8 #事件循环线程数
 workerPoolSize: 32 #工作线程数

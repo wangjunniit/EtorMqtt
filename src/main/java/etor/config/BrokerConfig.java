@@ -30,13 +30,18 @@ public class BrokerConfig {
      */
     private int workerPoolSize = CpuCoreSensor.availableProcessors() * 4;
 
+    /**
+     * mqtt服务端绑定的ip
+     */
+    private String bindIp = "127.0.0.1";
+
     private static BrokerConfig instance = new BrokerConfig();
 
     public static BrokerConfig getInstance() {
         return instance;
     }
 
-    public static void Init() throws IOException {
+    public static void init() throws IOException {
         var rootDir = new File(Main.class.getProtectionDomain().getCodeSource().getLocation().getPath()).getParentFile().getAbsolutePath();
 
         LogHelper.getLogger().info("程序运行根目录：" + rootDir);
