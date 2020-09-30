@@ -31,27 +31,31 @@ public class Main {
             LogHelper.getLogger().info(gcMxBean.getName() + "\t" + gcMxBean.getObjectName());
         }
 
-        init();
-        startupVertx(cpuCores);
+        BrokerConfig.Init();
+        startupVertx();
     }
 
-    private static void startupVertx(int cpuCores) {
+    private static void startupVertx() {
+
+        BrokerConfig brokerConfig = BrokerConfig.getInstance();
 
         VertxOptions vertxOptions = new VertxOptions();
-        vertxOptions.setEventLoopPoolSize(cpuCores * 2);
-        vertxOptions.setWorkerPoolSize(cpuCores * 4);
+        vertxOptions.setEventLoopPoolSize(brokerConfig.getEventLoopPoolSize());
+        vertxOptions.setWorkerPoolSize(brokerConfig.getWorkerPoolSize());
         vertxOptions.setPreferNativeTransport(true);
 
         Vertx vertx = Vertx.vertx(vertxOptions);
         boolean usingNative = vertx.isNativeTransportEnabled();
+        LogHelper.getLogger().info("vertx配置：{}", vertxOptions.toString());
         LogHelper.getLogger().info("使用epoll: " + usingNative);
 
         DeploymentOptions options = new DeploymentOptions();
-        options.setInstances(cpuCores);
+        options.setInstances(CpuCoreSensor.availableProcessors());
 
         NetServer server = vertx.createNetServer();
-        server.connectHandler(socket -> socket.handler(buffer -> System.out.println("I received some bytes: " + buffer.length())));
-
+        server.connectHandler(socket ->
+                socket.handler(buffer ->
+                        System.out.println("I received some bytes: " + buffer.length())));
 
 
         server.listen(1234, "localhost", res -> {
@@ -63,22 +67,4 @@ public class Main {
         });
     }
 
-    private static void init() throws IOException {
-
-        var rootDir = new File(Main.class.getProtectionDomain().getCodeSource().getLocation().getPath()).getParentFile().getAbsolutePath();
-
-        LogHelper.getLogger().info("程序运行根目录：" + rootDir);
-
-        var brokerConfigFilePath = Paths.get(rootDir, "broker.yaml");
-
-        var configText = new String(Files.readAllBytes(brokerConfigFilePath));
-
-        ObjectMapper om = new ObjectMapper(new YAMLFactory());
-
-        BrokerConfig brokerConfig = om.readValue(configText, BrokerConfig.class);
-
-        BrokerConfig.Init(brokerConfig);
-
-        LogHelper.getLogger().info("配置：\n{}", BrokerConfig.getInstance().toString());
-    }
 }
