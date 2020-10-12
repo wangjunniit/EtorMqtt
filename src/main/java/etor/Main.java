@@ -2,6 +2,7 @@ package etor;
 
 import etor.config.BrokerConfig;
 import etor.util.LogHelper;
+import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Vertx;
 import io.vertx.core.VertxOptions;
 import io.vertx.core.impl.cpu.CpuCoreSensor;
@@ -31,7 +32,10 @@ public class Main {
         LogHelper.getLogger().info("vertx配置：{}", vertxOptions.toString());
         LogHelper.getLogger().info("使用epoll: " + usingNative);
 
-        MqttServer.run(vertx);
+        DeploymentOptions options = new DeploymentOptions();
+        options.setInstances(CpuCoreSensor.availableProcessors());
+
+        vertx.deployVerticle(MqttServerVerticle.class, options);
     }
 
     static void printRuntimeInfo() {

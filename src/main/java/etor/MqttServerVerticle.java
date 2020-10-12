@@ -3,38 +3,35 @@ package etor;
 import etor.config.BrokerConfig;
 import etor.util.LogHelper;
 import io.vertx.core.AbstractVerticle;
-import io.vertx.core.net.NetServer;
+import io.vertx.mqtt.MqttServer;
 
 public class MqttServerVerticle extends AbstractVerticle {
 
-    NetServer server;
-    boolean listened = false;
+    MqttServer mqttServer;
 
     @Override
     public void start() {
 
         BrokerConfig config = BrokerConfig.getInstance();
+        mqttServer = MqttServer.create(vertx);
 
-        NetServer server = vertx.createNetServer();
-        server.connectHandler(socket ->
-                socket.handler(buffer ->
-                        System.out.println("I received some bytes: " + buffer.length())));
+        mqttServer.endpointHandler(endpoint -> {
 
-
-        server.listen(config.getMqttport(), config.getBindIp(), res -> {
-            if (res.succeeded()) {
-                listened = true;
-                LogHelper.getLogger().info("MqttServer已启动，端口：{}", config.getMqttport());
+        }).listen(config.getMqttport(), config.getBindIp(), ar -> {
+            if (ar.succeeded()) {
+                LogHelper.getLogger().info("MQTT server 启动成功，端口号：" + ar.result().actualPort());
             } else {
-                LogHelper.getLogger().error("MqttServer启动失败", res.cause());
+                LogHelper.getLogger().info("MQTT server启动失败");
+                ar.cause().printStackTrace();
             }
         });
     }
 
+
     @Override
     public void stop() {
-        if (server != null && listened) {
-            server.close().result();
+        if (mqttServer != null) {
+            mqttServer.close().result();
         }
     }
 }

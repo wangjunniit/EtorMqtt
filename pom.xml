@@ -19,6 +19,13 @@
             <artifactId>vertx-core</artifactId>
             <version>4.0.0-milestone5</version>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/io.vertx/vertx-codegen -->
+        <dependency>
+            <groupId>io.vertx</groupId>
+            <artifactId>vertx-codegen</artifactId>
+            <version>4.0.0-milestone5</version>
+        </dependency>
+
         <!-- https://mvnrepository.com/artifact/io.netty/netty-codec-mqtt -->
         <dependency>
             <groupId>io.netty</groupId>
