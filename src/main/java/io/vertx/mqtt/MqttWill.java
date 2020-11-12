@@ -17,9 +17,11 @@
 package io.vertx.mqtt;
 
 import io.vertx.codegen.annotations.DataObject;
+import io.vertx.core.buffer.Buffer;
 import io.vertx.core.json.JsonObject;
 
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Will information from the remote MQTT client
@@ -29,7 +31,7 @@ public class MqttWill {
 
   private final boolean isWillFlag;
   private final String willTopic;
-  private final byte[] willMessage;
+  private final Buffer willMessage;
   private final int willQos;
   private final boolean isWillRetain;
 
@@ -42,7 +44,7 @@ public class MqttWill {
    * @param willQos      qos level for the will
    * @param isWillRetain if the will message must be retained
    */
-  public MqttWill(boolean isWillFlag, String willTopic, byte[] willMessage, int willQos, boolean isWillRetain) {
+  public MqttWill(boolean isWillFlag, String willTopic, Buffer willMessage, int willQos, boolean isWillRetain) {
     this.isWillFlag = isWillFlag;
     this.willTopic = willTopic;
     this.willMessage = willMessage;
@@ -58,8 +60,8 @@ public class MqttWill {
   public MqttWill(JsonObject json) {
     this.isWillFlag = json.getBoolean("isWillFlag");
     this.willTopic = json.getString("willTopic");
-    this.willMessage = json.getString("willMessage").getBytes(Charset.forName("UTF-8"));
-    this.willQos = json.getInteger("willMessage");
+    this.willMessage = json.getBuffer("willMessage");
+    this.willQos = json.getInteger("willQos");
     this.isWillRetain = json.getBoolean("isWillRetain");
   }
 
@@ -79,18 +81,16 @@ public class MqttWill {
 
   /**
    * @return the payload for the will as provided by the remote MQTT client
-   * @deprecated use {@link #getWillMessageBytes()} instead
    */
-  @Deprecated
-  public String getWillMessage() {
-    return new String(this.willMessage, Charset.forName("UTF-8"));
+  public Buffer getWillMessage() {
+    return this.willMessage;
   }
 
   /**
    * @return the payload for the will as provided by the remote MQTT client
    */
   public byte[] getWillMessageBytes() {
-    return this.willMessage;
+    return this.willMessage != null ? this.willMessage.getBytes() : null;
   }
 
   /**
@@ -105,33 +105,6 @@ public class MqttWill {
    */
   public boolean isWillRetain() {
     return this.isWillRetain;
-  }
-
-  /**
-   * @deprecated use {@link #getWillTopic()} instead
-   * @return the topic for the will as provided by the remote MQTT client
-   */
-  @Deprecated
-  public String willTopic() {
-    return this.willTopic;
-  }
-
-  /**
-   * @return the payload for the will as provided by the remote MQTT client
-   * @deprecated use {@link #getWillMessageBytes()} instead
-   */
-  @Deprecated
-  public String willMessage() {
-    return this.getWillMessage();
-  }
-
-  /**
-   * @deprecated use {@link #willQos()} instead
-   * @return the QoS level for the will as provided by the remote MQTT client
-   */
-  @Deprecated
-  public int willQos() {
-    return this.willQos;
   }
 
   /**

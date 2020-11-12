@@ -58,14 +58,14 @@ public interface MqttEndpoint {
   SocketAddress localAddress();
 
   /**
-   * @return true if this {@link MqttEndpoint} is encrypted via SSL/TLS.
+   * @return true if this {@link io.vertx.mqtt.MqttEndpoint} is encrypted via SSL/TLS.
    */
   boolean isSsl();
 
   /**
    * @return SSLSession associated with the underlying socket. Returns null if connection is
    *         not SSL.
-   * @see SSLSession
+   * @see javax.net.ssl.SSLSession
    */
   @GenIgnore
   SSLSession sslSession();

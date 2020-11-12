@@ -28,6 +28,7 @@ import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.handler.timeout.IdleStateHandler;
 import io.vertx.core.Handler;
 import io.vertx.core.VertxException;
+import io.vertx.core.buffer.Buffer;
 import io.vertx.core.net.impl.NetSocketInternal;
 import io.vertx.core.impl.logging.Logger;
 import io.vertx.core.impl.logging.LoggerFactory;
@@ -62,13 +63,13 @@ public class MqttServerConnection {
   private final ChannelHandlerContext chctx;
   private final MqttServerOptions options;
 
-  void init(Handler<MqttEndpoint> endpointHandler, Handler<Throwable> rejectHandler) {
-    this.endpointHandler = endpointHandler;
-    this.exceptionHandler = rejectHandler;
-  }
-
-  public MqttServerConnection(NetSocketInternal so, MqttServerOptions options) {
+  public MqttServerConnection(NetSocketInternal so,
+                              Handler<MqttEndpoint> endpointHandler,
+                              Handler<Throwable> exceptionHandler,
+                              MqttServerOptions options) {
     this.so = so;
+    this.endpointHandler = endpointHandler;
+    this.exceptionHandler = exceptionHandler;
     this.chctx = so.channelHandlerContext();
     this.options = options;
   }
@@ -206,7 +207,7 @@ public class MqttServerConnection {
     MqttWill will =
       new MqttWill(msg.variableHeader().isWillFlag(),
         msg.payload().willTopic(),
-        msg.payload().willMessageInBytes(),
+        msg.payload().willMessageInBytes() != null ? Buffer.buffer(msg.payload().willMessageInBytes()) : null,
         msg.variableHeader().willQos(),
         msg.variableHeader().isWillRetain());
 
